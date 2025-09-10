@@ -54,7 +54,7 @@ final class WishController extends AbstractController
     }
 
     #[Route('/wishes/{id}/update', name: 'wish_update',requirements: ['id'=>'\d+'], methods: ['GET','POST'])]
-    public function update(int $id,WishRepository $wishRepository, $request, EntityManagerInterface $em): Response
+    public function update(int $id,WishRepository $wishRepository,Request $request, EntityManagerInterface $em): Response
     {
         $wish = $wishRepository->find($id);
         if(!$wish){
@@ -75,7 +75,7 @@ final class WishController extends AbstractController
     }
 
     #[Route('/wishes/{id}/delete', name: 'wish_delete',requirements: ['id'=>'\d+'], methods: ['GET'])]
-    public function delete(int $id,WishRepository $wishRepository, $request): Response
+    public function delete(int $id,WishRepository $wishRepository,Request $request): Response
     {
         $wish = $wishRepository->find($id);
         if (!$wish) {
