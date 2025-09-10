@@ -19,13 +19,30 @@ header a{
 header nav a:hover{
     text-decoration: underline;
 }
-
+/*---------------------------*/
+/* Main                      */
+/*---------------------------*/
 main{
     background-color: #FFF1E6;
 }
 
+main a{
+    color: #8c6956  ;
+}
+
+/*---------------------------*/
+/* Footer                    */
+/*---------------------------*/
 footer{
     background-color: #EDDCD2;
     text-align: center;
     padding: 1.5rem 0;
+}
+
+/*---------------------------*/
+/* Wish                      */
+/*---------------------------*/
+.wish-credit{
+    font-style: italic;
+    font-size: 0.9rem;
 }
