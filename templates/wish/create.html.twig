@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Add your wishes | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {% if wishForm.vars.value.id==null %}
+        <h2>Add your wishes !</h2>
+    {% else %}
+        <h2>Update your wishes !</h2>
+    {% endif %}
+
+    {{ form_start(wishForm) }}
+    {{ form_widget(wishForm) }}
+    <button class="btn btn-sm btn-primary" type="submit">{{ wishForm.vars.value.id == null ? 'Create' : 'Modify' }}</button>
+    {{ form_end(wishForm) }}
+{% endblock %}
+
