@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Wish;
 use App\Form\WishType;
 use App\Repository\WishRepository;
+use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,14 +36,25 @@ final class WishController extends AbstractController
             ["wish" => $wish]
         );
     }
+
+    /**
+     * @throws \Exception
+     */
     #[Route('/wishes/create', name: 'wish_create',methods: ['GET','POST'])]
-    public function create(Request $request, EntityManagerInterface $em): Response
+    public function create(Request $request, EntityManagerInterface $em,
+                           FileUploader $fileUploader): Response
     {
         $wish = new Wish();
         $wishForm = $this->createForm(WishType::class, $wish);
         $wishForm->handleRequest($request);
         if($wishForm->isSubmitted() && $wishForm->isValid()){
             $wish->setPublished(true);
+            //Traitement de l'image
+            /** @var @var UploadFile $imageFile */
+            $imageFile = $wishForm->get('image')->getData();
+            if($imageFile){
+                $wish->setFilename($fileUploader->upload($imageFile));
+            }
             $em->persist($wish);
             $em->flush();
             $this->addFlash('success', 'Wish created!');
@@ -54,7 +66,8 @@ final class WishController extends AbstractController
     }
 
     #[Route('/wishes/{id}/update', name: 'wish_update',requirements: ['id'=>'\d+'], methods: ['GET','POST'])]
-    public function update(int $id,WishRepository $wishRepository,Request $request, EntityManagerInterface $em): Response
+    public function update(int $id,WishRepository $wishRepository,Request $request,
+                           EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
         $wish = $wishRepository->find($id);
         if(!$wish){
@@ -65,6 +78,21 @@ final class WishController extends AbstractController
         $wishForm->handleRequest($request);
         if($wishForm->isSubmitted() && $wishForm->isValid()){
             $wish->setDateUpdated(new \DateTimeImmutable());
+            //Traitement de l'image
+            /** @var @var UploadFile $imageFile */
+            $imageFile = $wishForm->get('image')->getData();
+            if(($wishForm->has('deleteImage') && $wishForm['deleteImage']->getData())
+                || $imageFile){
+                //Suppression de l'ancienne image
+                //Si on a coché l'option dans le formulaire ou si on change d'image.
+                $fileUploader->delete($wish->getFilename(),$this->getParameter('app.images_wish_directory'));
+                if($imageFile){
+                    $wish->setFilename($fileUploader->upload($imageFile));
+                }else{
+                    $wish->setFilename(null);
+                }
+
+            }
             $em->flush();
             $this->addFlash('success', 'Wish updated!');
             return $this->redirectToRoute('wish_detail', ['id' => $wish->getId()]);

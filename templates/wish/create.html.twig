@@ -12,7 +12,21 @@
     {% endif %}
 
     {{ form_start(wishForm) }}
-    {{ form_widget(wishForm) }}
+    {{ form_row(wishForm.title) }}
+    {{ form_row(wishForm.description) }}
+    {{ form_row(wishForm.author) }}
+    <div class="d-flex">
+        <div class="col-sm-9">
+            {{ form_row(wishForm.image) }}
+        </div>
+        <div class="col-sm-3">
+            {% if wishForm.vars.value.filename != null %}
+                <img src="{{ asset(app_images_wish_directory ~ '/' ~ wishForm.vars.value.filename) }}" class="img-fluid"
+                     alt="Image"/>
+                {{ form_row(wishForm.deleteImage) }}
+            {% endif %}
+        </div>
+    </div>
     <button class="btn btn-sm btn-primary" type="submit">{{ wishForm.vars.value.id == null ? 'Create' : 'Modify' }}</button>
     {{ form_end(wishForm) }}
 {% endblock %}

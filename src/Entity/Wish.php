@@ -51,6 +51,9 @@ class Wish
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $dateUpdated = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $filename = null;
     public function __construct()
     {
         $this->dateCreated = new \DateTimeImmutable();
@@ -130,6 +133,18 @@ class Wish
     public function setDateUpdated(?\DateTimeImmutable $dateUpdated): static
     {
         $this->dateUpdated = $dateUpdated;
+
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(?string $filename): static
+    {
+        $this->filename = $filename;
 
         return $this;
     }

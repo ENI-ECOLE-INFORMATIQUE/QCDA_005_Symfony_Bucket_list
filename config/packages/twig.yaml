@@ -1,4 +1,7 @@
 twig:
+    globals:
+        app_images_wish_directory: '/uploads/images/wish'
+
     file_name_pattern: '*.twig'
     form_themes: ['bootstrap_5_layout.html.twig']
 when@test:
