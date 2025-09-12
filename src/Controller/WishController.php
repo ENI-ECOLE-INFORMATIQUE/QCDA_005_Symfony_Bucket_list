@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Wish;
+use App\Form\FilterCategoryType;
 use App\Form\WishType;
 use App\Repository\WishRepository;
 use App\Service\FileUploader;
@@ -14,12 +15,28 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class WishController extends AbstractController
 {
-    #[Route('/wishes', name: 'wish_list', methods: ['GET'] )]
-    public function list(WishRepository $wishRepository): Response
+    #[Route('/wishes', name: 'wish_list', methods: ['GET','POST'] )]
+    public function list(WishRepository $wishRepository,Request $request): Response
     {
-        $wishes = $wishRepository->findBy(['published' => true], ['dateCreated' => 'DESC']);
+        $categoryForm = $this->createForm(FilterCategoryType::class);
+        $categoryForm->handleRequest($request);
+        $wishes=[];
+
+        if ($categoryForm->isSubmitted() && $categoryForm->isValid()) {
+            $chosenCategory = $categoryForm->get('category')->getData();
+            dump($chosenCategory);
+            if($chosenCategory) {
+                $wishes = $wishRepository->findBy(['category' => $chosenCategory]);
+            }else{
+                $wishes = $wishRepository->findBy(['published' => true], ['dateCreated' => 'DESC']);
+            }
+
+        }else{
+            $wishes = $wishRepository->findBy(['published' => true], ['dateCreated' => 'DESC']);
+        }
         return $this->render('wish/list.html.twig', [
-            'wishes' => $wishes
+            'wishes' => $wishes,
+            'categoryForm' => $categoryForm,
         ]);
     }
 

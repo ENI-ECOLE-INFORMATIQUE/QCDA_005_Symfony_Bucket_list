@@ -3,11 +3,13 @@
 {% block body %}
     <section class="wishes-list">
         <h2>All wishes !</h2>
+        {{ form(categoryForm) }}
+
         {% for wish in wishes %}
             <article>
                 <a href="{{ path('wish_detail',{id:wish.id}) }}"
                    title="View this wish in details">
-                    {{ wish.title }} [{{ wish.category.name}}]
+                   <span>{{ wish.title }}</span>&nbsp; <span class="badge text-bg-secondary">{{ wish.category? wish.category.name : '?'}}</span>
                 </a>
             </article>
         {% endfor %}
