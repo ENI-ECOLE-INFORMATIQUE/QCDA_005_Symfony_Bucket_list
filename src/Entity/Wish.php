@@ -39,7 +39,7 @@ class Wish
         minMessage: 'Minimum {{ limit }} characters please !',
         maxMessage: 'Maximum {{ limit }} characters please !')]
     #[Assert\Regex(pattern: "/^[a-z0-9_-]+$/i",
-        message: 'Please use only alphanumeric characters, dashes and underscores.', )]
+        message: 'Please use only alphanumeric characters, underscores.', )]
     #[ORM\Column(length: 50)]
     private ?string $author = null;
 
@@ -54,6 +54,9 @@ class Wish
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $filename = null;
+
+    #[ORM\ManyToOne(inversedBy: 'wishes')]
+    private ?Category $category = null;
     public function __construct()
     {
         $this->dateCreated = new \DateTimeImmutable();
@@ -145,6 +148,18 @@ class Wish
     public function setFilename(?string $filename): static
     {
         $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

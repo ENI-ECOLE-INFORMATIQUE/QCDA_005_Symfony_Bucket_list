@@ -2,7 +2,10 @@
 
 namespace App\Form;
 
+use App\Entity\Category;
 use App\Entity\Wish;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -28,6 +31,17 @@ class WishType extends AbstractType
             ])
             ->add('author',TextType::class,[
                 'label' => 'Your username',
+            ])
+            ->add("category",EntityType::class,[
+                "label" => "Your category",
+                "choice_label"=>"name",
+                "class"=>Category::class,
+                "placeholder"=>"-- Choose a category --",
+                'query_builder'=>function(EntityRepository $er){
+                    return $er->createQueryBuilder('c')
+                        ->orderBy('c.name','ASC');
+                },
+                "required"=>false,
             ])
             ->add('image',FileType::class,[
                 'mapped' => false,
