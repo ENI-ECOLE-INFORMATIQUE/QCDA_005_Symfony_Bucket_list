@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Add your comment |
+	{{ parent() }}
+{% endblock %}
+
+{% block body %}
+	{% if commentForm.vars.value.id == null %}
+		<h2>Add your comment!</h2>
+	{% else %}
+		<h2>Update your comment!</h2>
+	{% endif %}
+	{{ form_start(commentForm) }}
+        {{ form_row(commentForm.content) }}
+        {{ form_row(commentForm.score) }}
+        <button class="btn btn-secondary">
+            {{ commentForm.vars.value.id == null ? 'Create' : 'Modifiy' }}
+        </button>
+	{{ form_end(commentForm) }}
+{% endblock %}
+

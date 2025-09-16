@@ -60,8 +60,7 @@ final class WishController extends AbstractController
      * @throws \Exception
      */
     #[Route('/create', name: 'create',methods: ['GET','POST'])]
-    public function create(Request $request, EntityManagerInterface $em,
-                           FileUploader $fileUploader): Response
+    public function create(Request $request, EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
         $wish = new Wish();
         $wishForm = $this->createForm(WishType::class, $wish);

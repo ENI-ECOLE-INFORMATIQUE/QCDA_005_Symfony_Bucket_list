@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\WishRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -51,10 +53,17 @@ class Wish
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'wish', orphanRemoval: true)]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->dateCreated = new \DateTimeImmutable();
         $this->published = false;
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -154,6 +163,36 @@ class Wish
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setWish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getWish() === $this) {
+                $comment->setWish(null);
+            }
+        }
 
         return $this;
     }

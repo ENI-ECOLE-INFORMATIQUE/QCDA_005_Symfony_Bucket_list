@@ -28,5 +28,44 @@
             {% endif %}
         </div>
     </div>
+    {# Comments #}
+    <p class="card-text text-decoration-underline">Comments :</p>
+    {% for comment in wish.comments %}
+        <div class="border border-1 rounded p-2">
+            <p class="wish-credit">
+                Created by
+                {{ comment.user.username }}
+                on
+                {{ comment.createdAt | date('H:i:s - d/m/Y') }}
+            </p>
+            <p class="card-text">{{ comment.content }}</p>
+            <p class="card-text">
+                {% for i in 1..(comment.score) %}
+                    &#9733
+                {% endfor %}
+                {% for i in 1..(5-comment.score) %}
+                    &#9734
+                {% endfor %}
+            </p>
+            <p class="wish-credit">
+                {% if app.user and (app.user == comment.user) %}
+                    <a href="{{ path('comment_update', {'id': comment.id }) }}" class="btn btn-secondary btn-sm" title="Modify comment">
+                        Modify
+                    </a>
+                {% endif %}
+                {% if app.user and (app.user == comment.user or is_granted('ROLE_ADMIN')) %}
+                    <a href="{{ path('comment_delete', {'id': comment.id, 'token': csrf_token('delete'~comment.id) }) }}" class="btn btn-danger btn-sm" title="Delete comment">
+                        Delete
+                    </a>
+                {% endif %}
+            </p>
+        </div>
+    {% endfor %}
+    <div class="text-center">
+        <a href="{{ path('comment_create', {'id': wish.id }) }}" class="btn btn-primary mt-2" title="Add a comment">
+            Add a comment
+        </a>
+    </div>
+
 {% endblock %}
 
