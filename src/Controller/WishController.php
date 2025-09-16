@@ -12,10 +12,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[Route('/wishes',name: 'wish_')]
 final class WishController extends AbstractController
 {
-    #[Route('/wishes', name: 'wish_list', methods: ['GET','POST'] )]
+    #[Route('/', name: 'list', methods: ['GET','POST'] )]
     public function list(WishRepository $wishRepository,Request $request): Response
     {
         $categoryForm = $this->createForm(FilterCategoryType::class);
@@ -40,7 +42,7 @@ final class WishController extends AbstractController
         ]);
     }
 
-    #[Route('/wishes/{id}', name: 'wish_detail', requirements: ['id'=>'\d+'],methods: ['GET'])]
+    #[Route('/{id}', name: 'detail', requirements: ['id'=>'\d+'],methods: ['GET'])]
     public function detail(int $id,WishRepository $wishRepository): Response
     {
         //Récupère ce wish en fonction de l'id présent dans l'URL
@@ -57,7 +59,7 @@ final class WishController extends AbstractController
     /**
      * @throws \Exception
      */
-    #[Route('/wishes/create', name: 'wish_create',methods: ['GET','POST'])]
+    #[Route('/create', name: 'create',methods: ['GET','POST'])]
     public function create(Request $request, EntityManagerInterface $em,
                            FileUploader $fileUploader): Response
     {
@@ -72,6 +74,9 @@ final class WishController extends AbstractController
             if($imageFile){
                 $wish->setFilename($fileUploader->upload($imageFile));
             }
+            // Set Current User as Author
+            $wish->setAuthor($this->getUser());
+
             $em->persist($wish);
             $em->flush();
             $this->addFlash('success', 'Wish created!');
@@ -82,13 +87,16 @@ final class WishController extends AbstractController
         );
     }
 
-    #[Route('/wishes/{id}/update', name: 'wish_update',requirements: ['id'=>'\d+'], methods: ['GET','POST'])]
-    public function update(int $id,WishRepository $wishRepository,Request $request,
+    #[Route('/{id}/update', name: 'update',requirements: ['id'=>'\d+'], methods: ['GET','POST'])]
+    public function update(Wish $wish, Request $request,
                            EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
-        $wish = $wishRepository->find($id);
         if(!$wish){
             throw $this->createNotFoundException('Wish not found, Sorry !');
+        }
+
+        if($wish->getAuthor() !== $this->getUser()){
+            throw $this->createAccessDeniedException('You are not the author of this wish');
         }
 
         $wishForm = $this->createForm(WishType::class, $wish);
@@ -119,13 +127,23 @@ final class WishController extends AbstractController
         );
     }
 
-    #[Route('/wishes/{id}/delete', name: 'wish_delete',requirements: ['id'=>'\d+'], methods: ['GET'])]
+    #[Route('/{id}/delete', name: 'delete',requirements: ['id'=>'\d+'], methods: ['GET'])]
+    #[IsGranted(['ROLE_ADMIN', 'ROLE_USER'], message: 'You are not the admin or the author of this wish')]
     public function delete(int $id,WishRepository $wishRepository,Request $request): Response
     {
         $wish = $wishRepository->find($id);
         if (!$wish) {
             throw $this->createNotFoundException('Wish not found, Sorry !');
         }
+        
+        // if(!$this->isGranted('ROLE_ADMIN')){
+        //     throw $this->createAccessDeniedException('You are not the admin of this wish');
+        // }
+
+        if(!($wish->getAuthor() === $this->getUser()) || !$this->isGranted('ROLE_ADMIN')){
+            throw $this->createAccessDeniedException('You are not the admin or the author of this wish');
+        }
+
         if($this->isCsrfTokenValid('delete'.$wish->getId(), $request->request->get('token'))){
             $wishRepository->remove($wish,true);
             $this->addFlash('success', 'Wish deleted!');
@@ -134,6 +152,4 @@ final class WishController extends AbstractController
         }
         return $this->redirectToRoute('wish_list');
     }
-
-
 }

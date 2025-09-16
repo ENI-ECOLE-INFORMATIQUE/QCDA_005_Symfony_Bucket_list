@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Category;
+use App\Entity\User;
 use App\Entity\Wish;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -12,18 +13,15 @@ class WishFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-        $faker = \Faker\Factory::create('en_EN');
+        $faker = \Faker\Factory::create('fr_FR');
 
         $categories = $manager->getRepository(Category::class)->findAll();
-
-
+        $users = $manager->getRepository(User::class)->findAll();
 
         for ($i = 0; $i <= 10; $i++) {
             $wish = new Wish();
             $wish->setTitle($faker->word);
-            $wish->setAuthor($faker->name);
+            $wish->setAuthor($faker->randomElement($users));
             $wish->setDescription($faker->realText());
             $wish->setDateCreated(\DateTimeImmutable::createFromMutable(
                 $faker->dateTimeBetween('-3 months', 'now')));
@@ -36,6 +34,6 @@ class WishFixtures extends Fixture implements DependentFixtureInterface
 
     public function getDependencies(): array
     {
-        return [CategoryFixtures::class];
+        return [CategoryFixtures::class, UserFixtures::class];
     }
 }

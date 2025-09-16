@@ -12,15 +12,20 @@
         {% endif %}
         <div class="card-body">
             <h5 class="card-title">{{ wish.title }}</h5>
-            <p class="wish-credit">Created by {{ wish.author }} on {{ wish.dateCreated|date('Y-m-d') }}</p>
+            <p class="wish-credit">Created by {{ wish.author.username }} on {{ wish.dateCreated|date('Y-m-d') }}</p>
             <p class="card-text">{{ wish.description|nl2br }}</p>
             <p class="wish-category">Classified in: {{ wish.category? wish.category.name : '?'}}</p>
         </div>
         <div class="text-center">
+            {% if app.user and is_granted('ROLE_ADMIN') %}
             <a href="{{ path('wish_delete',{'id':wish.id,'token':csrf_token('delete'~wish.id)}) }}"
                class="btn btn-danger mt-2" title="Delete the wish">Delete</a>
+            {% endif %}
+            
+            {% if app.user == wish.author %}
             <a href="{{ path('wish_update',{'id':wish.id}) }}"
                class="btn btn-secondary mt-2" title="Update the wish">Modify</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

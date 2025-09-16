@@ -24,6 +24,19 @@
                 <li class="nav-item">
                     <a class="nav-link" title="About us" href="{{ path('main_about_us')}}">About us</a>
                 </li>
+
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link" title="Logout" href="{{ path('app_logout')}}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" title="Register" href="{{ path('app_register')}}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" title="Login" href="{{ path('app_login')}}">Login</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

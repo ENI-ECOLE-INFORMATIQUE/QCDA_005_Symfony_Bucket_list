@@ -5,9 +5,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 final class FileUploader
 {
-    public function __construct(private readonly string $targetDirectory)
-    {
-    }
+    public function __construct(private readonly string $targetDirectory) {}
 
     public function upload(UploadedFile $uploadedFile): string{
         $filename = uniqid() . '.' . $uploadedFile->guessExtension();
