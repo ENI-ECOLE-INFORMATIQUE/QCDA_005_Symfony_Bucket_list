@@ -143,7 +143,7 @@ final class WishController extends AbstractController
             throw $this->createAccessDeniedException('You are not the admin or the author of this wish');
         }
 
-        if($this->isCsrfTokenValid('delete'.$wish->getId(), $request->request->get('token'))){
+        if($this->isCsrfTokenValid('delete'.$wish->getId(), $request->query->get('token'))){
             $wishRepository->remove($wish,true);
             $this->addFlash('success', 'Wish deleted!');
         }else{
