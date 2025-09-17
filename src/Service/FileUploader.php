@@ -7,11 +7,10 @@ final class FileUploader
 {
     public function __construct(private readonly string $targetDirectory) {}
 
-    public function upload(UploadedFile $uploadedFile): string{
+    public function upload(UploadedFile $uploadedFile): string {
         $filename = uniqid() . '.' . $uploadedFile->guessExtension();
         try{
             $uploadedFile->move($this->targetDirectory, $filename);
-
         }catch (FileException $e){
             throw new FileException("Error uploading file");
         }

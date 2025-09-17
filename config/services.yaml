@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.images_wish_directory: '%kernel.project_dir%/public/uploads/images/wish'
+    app.words_censured_directory: '%kernel.project_dir%/data/words_censured.txt'
 
 services:
     # default configuration for services in *this* file
@@ -24,5 +25,9 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%app.images_wish_directory%'
+
+    # App\Service\CensuratorService:
+    #     arguments:
+    #         $wordsCensuredDirectory: '%app.words_censured_directory%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -6,6 +6,7 @@ use App\Entity\Wish;
 use App\Form\FilterCategoryType;
 use App\Form\WishType;
 use App\Repository\WishRepository;
+use App\Service\CensuratorService;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,13 +61,12 @@ final class WishController extends AbstractController
      * @throws \Exception
      */
     #[Route('/create', name: 'create',methods: ['GET','POST'])]
-    public function create(Request $request, EntityManagerInterface $em, FileUploader $fileUploader): Response
+    public function create(Request $request, EntityManagerInterface $em, FileUploader $fileUploader, CensuratorService $censuratorService): Response
     {
         $wish = new Wish();
         $wishForm = $this->createForm(WishType::class, $wish);
         $wishForm->handleRequest($request);
         if($wishForm->isSubmitted() && $wishForm->isValid()){
-            $wish->setPublished(true);
             //Traitement de l'image
             /** @var @var UploadFile $imageFile */
             $imageFile = $wishForm->get('image')->getData();
@@ -75,6 +75,11 @@ final class WishController extends AbstractController
             }
             // Set Current User as Author
             $wish->setAuthor($this->getUser());
+
+            //Censure du titre
+            $wish->setTitle($censuratorService->censor($wish->getTitle()));
+            //Censure de la description
+            $wish->setDescription($censuratorService->censor($wish->getDescription()));
 
             $em->persist($wish);
             $em->flush();
